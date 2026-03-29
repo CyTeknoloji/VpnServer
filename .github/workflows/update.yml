@@ -1,0 +1,33 @@
+name: Auto Update V2Ray Servers
+
+# Robotun ne zaman çalışacağını belirliyoruz
+on:
+  schedule:
+    - cron: '0 */12 * * *' # Her 12 saatte bir çalıştırır (00:00 ve 12:00)
+  workflow_dispatch: # Bu sayede GitHub panelinden manuel olarak da tetikleyebilirsin
+
+jobs:
+  update-servers:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Robotun dosyaya yazabilmesi için izin veriyoruz
+
+    steps:
+      - name: Repoyu Klonla
+        uses: actions/checkout@v3
+
+      - name: Python Kur
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Toplayıcı Robotu Çalıştır
+        run: python scraper.py
+
+      - name: Değişiklikleri GitHub'a Kaydet
+        run: |
+          git config --global user.name "V2Ray Bot"
+          git config --global user.email "bot@coolvpn.com"
+          git add v2ray_nodes.txt
+          git commit -m "Otomatik Güncelleme: Taze V2Ray Sunucuları Eklendi" || echo "Değişiklik yok"
+          git push
